@@ -1,6 +1,7 @@
 "aspect-build/bazel-lib"
 
 module(
+    name = "aspect_bazel_lib",
     compatibility_level = 1,
     toolchains_to_register = [
         "@jq_toolchains//:all",
