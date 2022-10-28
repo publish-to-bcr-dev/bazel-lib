@@ -1,1 +1,3 @@
-fixedReleaser: kormide
+fixedReleaser:
+  login: kormide
+  email: derek@aspect.dev
