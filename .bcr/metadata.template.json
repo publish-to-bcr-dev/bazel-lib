@@ -2,7 +2,6 @@
   "homepage": "https://docs.aspect.dev/bazel-lib",
   "maintainers": [
     {
-      "email": "derek@aspect.dev",
       "github": "kormide",
       "name": "Derek"
     },
