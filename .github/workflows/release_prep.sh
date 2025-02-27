@@ -15,10 +15,13 @@ ARCHIVE_TMP=$(mktemp)
 # NB: configuration for 'git archive' is in /.gitattributes
 git archive --format=tar --prefix=${PREFIX}/ ${TAG} >$ARCHIVE_TMP
 
-gzip <$ARCHIVE_TMP >$ARCHIVE
+gzip <$ARCHIVE_TMP >"$ARTIFACS_DIR/$ARCHIVE"
 SHA=$(shasum -a 256 $ARCHIVE | awk '{print $1}')
 
-cat <<EOF
+# Random extra release file
+echo "foo" > bar.txt
+
+cat <<EOF > $RELEASE_NOTES
 
 ## Release notes
 
@@ -27,3 +30,7 @@ Foobar
 \`\`\`
 
 EOF
+
+jq --null-input \
+  --arg archive "${ARCHIVE}" \
+  '{release_archive: $archive}'
