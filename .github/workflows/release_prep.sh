@@ -9,7 +9,7 @@ TAG=${GITHUB_REF_NAME}
 # This guarantees that users can easily switch from a released artifact to a source archive
 # with minimal differences in their code (e.g. strip_prefix remains the same)
 PREFIX="bazel-lib-${TAG:1}"
-ARCHIVE="bazel-lib-$TAG.tar.gz"
+ARCHIVE="${ARTIFACTS_DIR}/bazel-lib-$TAG.tar.gz"
 ARCHIVE_TMP=$(mktemp)
 
 # NB: configuration for 'git archive' is in /.gitattributes
@@ -18,7 +18,10 @@ git archive --format=tar --prefix=${PREFIX}/ ${TAG} >$ARCHIVE_TMP
 gzip <$ARCHIVE_TMP >$ARCHIVE
 SHA=$(shasum -a 256 $ARCHIVE | awk '{print $1}')
 
-cat <<EOF
+# Random extra release file
+echo "foo" > "${ARTIFACTS_DIR}/bar.txt"
+
+cat <<EOF > $RELEASE_NOTES
 
 ## Release notes
 
@@ -27,3 +30,7 @@ Foobar
 \`\`\`
 
 EOF
+
+jq --null-input \
+  --arg archive "${ARCHIVE}" \
+  '{release_archive: $archive}'

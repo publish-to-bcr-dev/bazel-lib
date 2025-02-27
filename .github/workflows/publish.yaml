@@ -1,108 +1,23 @@
+name: Publish
 
-name: publish
-
-
-# this is just a test to create a module entry into BCR, not for any real world use
-  
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'tag'
+      tag_name:
+        description: 'tag_name'
         required: true
       registry:
         description: 'bazel central registry target'
-        required: true
+        required: false
         default: 'publish-to-bcr-dev/bazel-central-registry'        
 
+permissions:
+  id-token: write
+  attestations: write
+
 jobs:
-  create-entry:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      attestations: write    
-    steps:
-    - name: Checkout this repo
-      uses: actions/checkout@v4.2.2
-      with:
-        ref: ${{ github.event.inputs.tag }}
-        path: this
-
-    - name: Checkout BCR
-      uses: actions/checkout@v4.2.2
-      with:
-        repository: ${{ github.event.inputs.registry }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-        path: bazel-central-registry
-
-    # Get version from the tag, stripping any v-prefix
-    - name: Write release version
-      env:
-        TAG: ${{ github.event.inputs.tag }}
-      run: |
-        VERSION=${TAG#v}
-        echo Version: $VERSION
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-    - name: Create entry
-      uses: bazel-contrib/publish-to-bcr@8635a39a3173981243ad33d44fc799673731e9e6
-      with:
-        attest: true
-        attestations-dest: attestations
-        tag: ${{ github.event.inputs.tag }}
-        module-version: ${{ env.VERSION }}
-        local-registry: bazel-central-registry
-        # templates-dir: this/.bcr
-        metadata-template: |
-          {
-            "homepage": "https://docs.aspect.dev/bazel-lib",
-            "maintainers": [
-              {
-                "email": "derek@aspect.dev",
-                "github": "kormide",
-                "name": "Derek"
-              }
-            ],
-            "versions": [],
-            "yanked_versions": {}
-          }
-        source-template: |
-          {
-            "integrity": "**leave this alone**",
-            "strip_prefix": "{REPO}-{VERSION}",
-            "url": "https://github.com/{OWNER}/{REPO}/archive/refs/tags/{TAG}.zip"
-          }
-        presubmit: |
-          bcr_test_module:
-            module_path: "e2e/bzlmod"
-            matrix:
-              platform: ["debian10", "macos", "ubuntu2004", "windows"]
-            tasks:
-              run_tests:
-                name: "Run test module"
-                platform: ${{ '\${{ platform }}' }}
-                test_targets:
-                  - "//..."
-        patch: |
-          diff --git a/MODULE.bazel b/MODULE.bazel
-          index 560a84f..dc27ef2 100644
-          --- a/MODULE.bazel
-          +++ b/MODULE.bazel
-          @@ -11,7 +11,7 @@ module(
-          )
-          
-          bazel_dep(name = "bazel_skylib", version = "1.1.1")
-          -bazel_dep(name = "platforms", version = "0.0.4")
-          +bazel_dep(name = "platforms", version = "0.0.4", dev_dependency = True)
-          bazel_dep(name = "stardoc", repo_name = "io_bazel_stardoc", version = "0.5.0")
-          
-          ext = use_extension("@aspect_bazel_lib//lib:extensions.bzl", "ext")
-    - name: List attestations
-      run: |
-        ls -l attestations
-        cat attestations/MODULE.bazel.intoto.jsonl
-        cat attestations/source.json.intoto.jsonl                  
-    - name: Git status
-      run: |
-        cd bazel-central-registry
-        git status
+  publish:
+    uses: publish-to-bcr-dev/.github/.github/workflows/publish.yaml@483b43336ecc6540a861ed17f057c8857c10efd1
+    with:
+      tag_name: ${{ inputs.tag_name }}
+      registry: ${{ inputs.registry }}
