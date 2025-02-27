@@ -10,9 +10,9 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   release:
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7
-    with:
-      release_files: bazel-lib-*.tar.gz
+    uses: publish-to-bcr-dev/.github/.github/workflows/release_ruleset.yaml@5986b0d46b6dfd54c582b3507861ba16c5d533e3
