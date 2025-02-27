@@ -13,6 +13,6 @@ permissions:
 
 jobs:
   release:
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@8985544061d1b5bb37c6cdc9ff701c6060c693ef
     with:
       release_files: bazel-lib-*.tar.gz
