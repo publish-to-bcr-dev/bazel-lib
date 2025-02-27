@@ -18,6 +18,9 @@ git archive --format=tar --prefix=${PREFIX}/ ${TAG} >$ARCHIVE_TMP
 gzip <$ARCHIVE_TMP >$ARCHIVE
 SHA=$(shasum -a 256 $ARCHIVE | awk '{print $1}')
 
+# Random extra release file
+echo "foo" > bar.txt
+
 cat <<EOF
 
 ## Release notes
